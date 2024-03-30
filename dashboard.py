@@ -196,6 +196,4 @@ if file is not None:
     st.write('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fermentum massa et sapien vehicula, sed lacinia ligula cursus. Quisque ut risus at est placerat vulputate. Nulla facilisi. Nam fringilla mi ac quam sollicitudin, nec tempor metus bibendum. Maecenas a quam velit. Donec sodales pharetra diam, sit amet malesuada magna.')
 
     st.markdown('---')
-
-    # Centered text using HTML and CSS
     st.write('<div style="text-align: center;">Thank you for using <span style="font-size: 22px; font-weight: 800;">SweepAI</span>!</div>', unsafe_allow_html=True)
