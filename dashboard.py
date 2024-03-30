@@ -5,6 +5,19 @@ import numpy as np
 from scipy.stats import pointbiserialr
 
 st.set_page_config(layout='wide')
+
+# Define custom CSS styles
+custom_css = """
+<style>
+html {
+    background-color: #ffffff; /* Change this color to your desired background color */
+}
+</style>
+"""
+
+# Render the CSS
+st.markdown(custom_css, unsafe_allow_html=True)
+
 st.title('Sweep AI')
 st.subheader('Upload a CSV file to analyze its contents')
 
@@ -41,6 +54,17 @@ if file is not None:
     sorted_combined = sorted(combined, key=lambda x: x[1])
     all_columns, correlations = zip(*sorted_combined)
 
+    best_columns = all_columns
+    best_correlations = correlations
+    best_correlations = [abs(value) for value in best_correlations]
+
+    best_combined = list(zip(best_columns, best_correlations))
+    best_sorted_combined = sorted(best_combined, key=lambda x: x[1], reverse=True)
+    best_columns, best_correlations = zip(*best_sorted_combined)
+
+    best_columns = best_columns[:3]
+    best_correlations = best_correlations[:3]
+
     st.write('**Columns vs Correlations**')
     categories = ['A', 'B', 'C', 'D']
     values = [20, 30, 15, 35]
@@ -59,18 +83,17 @@ if file is not None:
 
     st.markdown('---')
 
-    column_names = ['Type', 'TrayPos', 'Oven_CNT']
-    for i in range(0, len(column_names), 2):
-        scatter_x = df[column_names[i]].values.astype(float)
+    for i in range(0, len(best_columns), 2):
+        scatter_x = df[best_columns[i]].values.astype(float)
         scatter_y = df[scrap_column_name].values.astype(float)
-        if i == len(column_names) - 1:
-            st.write(f'**{column_names[i]}**')
+        if i == len(best_columns) - 1:
+            st.write(f'**{best_columns[i]}**')
             corr, p = pointbiserialr(scatter_x, scatter_y)
             st.write(f'**Correlation: {round(corr * 100, 2)}%**')
             fig_scatter = go.Figure()
             fig_scatter.add_trace(go.Scatter(x=scatter_x, y=scatter_y, mode='markers'))
             fig_scatter.update_layout(
-                xaxis_title=column_names[i],
+                xaxis_title=best_columns[i],
                 yaxis_title=scrap_column_name,
                 template='plotly_white',
                 hovermode='closest',
@@ -84,13 +107,13 @@ if file is not None:
         col1, col2 = st.columns(2)
 
         with col1:
-            st.write(f'**{column_names[i]}**')
+            st.write(f'**{best_columns[i]}**')
             corr, p = pointbiserialr(scatter_x, scatter_y)
             st.write(f'**Correlation: {round(corr * 100, 2)}%**')
             fig_scatter = go.Figure()
             fig_scatter.add_trace(go.Scatter(x=scatter_x, y=scatter_y, mode='markers'))
             fig_scatter.update_layout(
-                xaxis_title=column_names[i],
+                xaxis_title=best_columns[i],
                 yaxis_title=scrap_column_name,
                 template='plotly_white',
                 hovermode='closest',
@@ -100,15 +123,15 @@ if file is not None:
             )
             st.plotly_chart(fig_scatter, use_container_width=True, align="center")
 
-        scatter_x = df[column_names[i]].values.astype(float)
+        scatter_x = df[best_columns[i]].values.astype(float)
         with col2:
-            st.write(f'**{column_names[i+1]}**')
+            st.write(f'**{best_columns[i+1]}**')
             corr, p = pointbiserialr(scatter_x, scatter_y)
             st.write(f'**Correlation: {round(corr*100, 2)}%**')
             fig_scatter = go.Figure()
             fig_scatter.add_trace(go.Scatter(x=scatter_x, y=scatter_y, mode='markers'))
             fig_scatter.update_layout(
-                xaxis_title=column_names[i+1],
+                xaxis_title=best_columns[i+1],
                 yaxis_title=scrap_column_name,
                 template='plotly_white',
                 hovermode='closest',
