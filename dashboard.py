@@ -3,6 +3,76 @@ import pandas as pd
 import plotly.graph_objects as go
 import numpy as np
 from scipy.stats import pointbiserialr
+import openai
+from openai import OpenAI
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+OPEN_API_KEY = os.getenv("OPEN_API_KEY")
+openai.api_key = OPEN_API_KEY
+
+# Function to process the uploaded file and interact with OpenAI's API
+def analyze_uploaded_file(text):
+    # Assuming the file is a text file. Adjust accordingly for other types.
+    try:
+
+        scrap_column_name = 'IsScrap'
+        correlations = []
+        all_columns = df.columns.to_list()
+        for column in all_columns:
+            if column == scrap_column_name:
+                all_columns.remove(column)
+                break
+        for i in range(len(all_columns)):
+            if all_columns[i] == scrap_column_name:
+                continue
+            scatter_x = df[all_columns[i]].values.astype(float)
+            scatter_y = df[scrap_column_name].values.astype(float)
+            corr, p = pointbiserialr(scatter_x, scatter_y)
+            correlations.append(round(corr * 100, 2))
+
+        combined = list(zip(all_columns, correlations))
+        sorted_combined = sorted(combined, key=lambda x: x[1])
+        all_columns, correlations = zip(*sorted_combined)
+        input_columns = ""
+        for i in range(len(all_columns)):
+            input_columns += str(all_columns[i]) + ":" + str(correlations[i]) + ","
+
+        # Initialize OpenAI API (ensure you've set your API key in your environment)
+        openai.api_key = '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';
+
+        # Crafting a prompt for the OpenAI model to analyze the causes of scrap from the content
+        prompt_text = f"Take the following list of names of columns and their corresponding coefficients (take absolute values) and find the top 3." + input_columns + " Give actionable steps on how to minimize scrap because of these columns in a manufacturing facility in this format: Column 1: 'name of column'\n 1. 'actionable step 1'\n 2. 'actionable step 2'\n 3. 'actionable step 3'\n complete these for the next 3 columns"
+        system_prompt = f"You give suggestions for how to reduce scrap in a manufacturing facility given the factors."
+
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt_text}
+            ]
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return str(e)  # For debugging purposes
+
+
+def csv_to_text(df):
+    # Initialize a list to hold the text representation of each column
+    text_columns = []
+
+    # Iterate over the DataFrame columns
+    for column in df.columns:
+        # Convert each column to a string, joining cells with " | " as the delimiter
+        column_text = " | ".join(map(str, df[column].values))
+        text_columns.append(column + ":\n" + column_text + "\n")
+
+    # Join all column texts into a single text string, using double newlines as separators
+    full_text = "\n".join(text_columns)
+
+    return full_text
+
 
 st.set_page_config(layout='wide')
 st.title('Sweep AI')
@@ -20,6 +90,13 @@ if file is not None:
     st.write(df)
 
     st.markdown('---')
+
+    parsed_text = csv_to_text(df)
+    final_text = analyze_uploaded_file(parsed_text)
+
+
+
+
     st.subheader('Analytics')
 
     scrap_column_name = 'IsScrap'
@@ -202,8 +279,23 @@ if file is not None:
     #     st.plotly_chart(fig_scatter, use_container_width=True, align="center")
     # st.markdown('---')
 
-    st.subheader('Verdict')
-    st.write('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed fermentum massa et sapien vehicula, sed lacinia ligula cursus. Quisque ut risus at est placerat vulputate. Nulla facilisi. Nam fringilla mi ac quam sollicitudin, nec tempor metus bibendum. Maecenas a quam velit. Donec sodales pharetra diam, sit amet malesuada magna.')
+    st.subheader('Verdict (Suggestions to reduce scrap)')
+    st.write(final_text)
+    st.markdown('---')
+    st.subheader('Premium Tier (Hardware Configuration Recommendations)')
+
+    system_prompt = "Please take the following columns and their values. Ignore the scrap column. " + parsed_text + "Find the ideal value which is determined by rows that have a 0 in the scrap column and output the results in the following format example: OvenCNT: 79.230944, add a newline for each column and repeat for all columns"
+    prompt_text = "You are a hardware configuration recommender."
+
+    response = openai.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt_text}
+        ]
+    )
+    output = response.choices[0].message.content
+    st.write(output)
 
     st.markdown('---')
     st.write('<div style="text-align: center;">Thank you for using <span style="font-size: 22px; font-weight: 800;">SweepAI</span>!</div>', unsafe_allow_html=True)
