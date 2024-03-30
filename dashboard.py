@@ -5,19 +5,6 @@ import numpy as np
 from scipy.stats import pointbiserialr
 
 st.set_page_config(layout='wide')
-
-# Define custom CSS styles
-custom_css = """
-<style>
-html {
-    background-color: #ffffff; /* Change this color to your desired background color */
-}
-</style>
-"""
-
-# Render the CSS
-st.markdown(custom_css, unsafe_allow_html=True)
-
 st.title('Sweep AI')
 st.subheader('Upload a CSV file to analyze its contents')
 
