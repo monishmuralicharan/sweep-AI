@@ -8,9 +8,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
-OPEN_API_KEY = os.getenv("OPEN_API_KEY")
-openai.api_key = OPEN_API_KEY
+openai.api_key = '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';
 
 # Function to process the uploaded file and interact with OpenAI's API
 def analyze_uploaded_file(text):
@@ -39,8 +37,6 @@ def analyze_uploaded_file(text):
         for i in range(len(all_columns)):
             input_columns += str(all_columns[i]) + ":" + str(correlations[i]) + ","
 
-        # Initialize OpenAI API (ensure you've set your API key in your environment)
-        openai.api_key = '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';
 
         # Crafting a prompt for the OpenAI model to analyze the causes of scrap from the content
         prompt_text = f"Take the following list of names of columns and their corresponding coefficients (take absolute values) and find the top 3." + input_columns + " Give actionable steps on how to minimize scrap because of these columns in a manufacturing facility in this format: Column 1: 'name of column'\n 1. 'actionable step 1'\n 2. 'actionable step 2'\n 3. 'actionable step 3'\n complete these for the next 3 columns"
@@ -59,18 +55,17 @@ def analyze_uploaded_file(text):
 
 
 def csv_to_text(df):
-    # Initialize a list to hold the text representation of each column
     text_columns = []
 
-    # Iterate over the DataFrame columns
     for column in df.columns:
-        # Convert each column to a string, joining cells with " | " as the delimiter
-        column_text = " | ".join(map(str, df[column].values))
-        text_columns.append(column + ":\n" + column_text + "\n")
+        # Ensure each cell value is converted to string to prevent type errors
+        column_values_as_str = map(str, df[column].values)
+        column_text = " | ".join(column_values_as_str)
+        # Explicitly convert column name to string to ensure compatibility
+        column_name_as_str = str(column)
+        text_columns.append(column_name_as_str + ":\n" + column_text + "\n")
 
-    # Join all column texts into a single text string, using double newlines as separators
     full_text = "\n".join(text_columns)
-
     return full_text
 
 
