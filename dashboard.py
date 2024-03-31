@@ -94,9 +94,6 @@ if file is not None:
     parsed_text = csv_to_text(df)
     final_text = analyze_uploaded_file(parsed_text)
 
-
-
-
     st.subheader('Analytics')
 
     scrap_column_name = 'IsScrap'
@@ -147,67 +144,89 @@ if file is not None:
 
     st.markdown('---')
 
-    for i in range(0, len(best_columns), 2):
-        scatter_x = df[best_columns[i]].values.astype(float)
-        scatter_y = df[scrap_column_name].values.astype(float)
-        if i == len(best_columns) - 1:
-            st.write(f'**{best_columns[i]}**')
-            corr, p = pointbiserialr(scatter_x, scatter_y)
-            st.write(f'**Correlation: {round(corr * 100, 2)}%**')
-            fig_scatter = go.Figure()
-            fig_scatter.add_trace(go.Scatter(x=scatter_x, y=scatter_y, mode='markers'))
-            fig_scatter.update_layout(
-                xaxis_title=best_columns[i],
-                yaxis_title=scrap_column_name,
-                template='plotly_white',
-                hovermode='closest',
-                margin=dict(l=40, r=40, t=40, b=40),
-                width=400,
-                height=300,
-            )
-            st.plotly_chart(fig_scatter, use_container_width=True, align="center")
-            break
+    scatter_x = df[best_columns[0]].values.astype(float)
+    scatter_y = df[scrap_column_name].values.astype(float)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(f'**{best_columns[0]}**')
+        corr, p = pointbiserialr(scatter_x, scatter_y)
+        st.write(f'**Correlation: {round(corr * 100, 2)}%**')
+        fig_scatter = go.Figure()
+        fig_scatter.add_trace(go.Scatter(x=scatter_x, y=scatter_y, mode='markers'))
+        fig_scatter.update_layout(
+            xaxis_title=best_columns[0],
+            yaxis_title=scrap_column_name,
+            template='plotly_white',
+            hovermode='closest',
+            margin=dict(l=40, r=40, t=40, b=40),
+            width=400,
+            height=300,
+        )
+        st.plotly_chart(fig_scatter, use_container_width=True, align="center")
 
-        col1, col2 = st.columns(2)
+    scatter_x = df[best_columns[1]].values.astype(float)
+    with col2:
+        st.write(f'**{best_columns[1]}**')
+        corr, p = pointbiserialr(scatter_x, scatter_y)
+        st.write(f'**Correlation: {round(corr * 100, 2)}%**')
+        fig_scatter = go.Figure()
+        fig_scatter.add_trace(go.Scatter(x=scatter_x, y=scatter_y, mode='markers'))
+        fig_scatter.update_layout(
+            xaxis_title=best_columns[1],
+            yaxis_title=scrap_column_name,
+            template='plotly_white',
+            hovermode='closest',
+            margin=dict(l=40, r=40, t=40, b=40),
+            width=400,
+            height=300,
+        )
+        st.plotly_chart(fig_scatter, use_container_width=True, align="center")
 
-        with col1:
-            st.write(f'**{best_columns[i]}**')
-            corr, p = pointbiserialr(scatter_x, scatter_y)
-            st.write(f'**Correlation: {round(corr * 100, 2)}%**')
-            fig_scatter = go.Figure()
-            fig_scatter.add_trace(go.Scatter(x=scatter_x, y=scatter_y, mode='markers'))
-            fig_scatter.update_layout(
-                xaxis_title=best_columns[i],
-                yaxis_title=scrap_column_name,
-                template='plotly_white',
-                hovermode='closest',
-                margin=dict(l=40, r=40, t=40, b=40),
-                width=400,
-                height=300,
-            )
-            st.plotly_chart(fig_scatter, use_container_width=True, align="center")
+    scatter_x = df[best_columns[2]].values.astype(float)
+    scatter_y = df[scrap_column_name].values.astype(float)
+    col3, col4 = st.columns(2)
+    with col3:
+        st.write(f'**{best_columns[2]}**')
+        corr, p = pointbiserialr(scatter_x, scatter_y)
+        st.write(f'**Correlation: {round(corr * 100, 2)}%**')
+        fig_scatter = go.Figure()
+        fig_scatter.add_trace(go.Scatter(x=scatter_x, y=scatter_y, mode='markers'))
+        fig_scatter.update_layout(
+            xaxis_title=best_columns[2],
+            yaxis_title=scrap_column_name,
+            template='plotly_white',
+            hovermode='closest',
+            margin=dict(l=40, r=40, t=40, b=40),
+            width=400,
+            height=300,
+        )
+        st.plotly_chart(fig_scatter, use_container_width=True, align="center")
 
-        scatter_x = df[best_columns[i]].values.astype(float)
-        with col2:
-            st.write(f'**{best_columns[i+1]}**')
-            corr, p = pointbiserialr(scatter_x, scatter_y)
-            st.write(f'**Correlation: {round(corr*100, 2)}%**')
-            fig_scatter = go.Figure()
-            fig_scatter.add_trace(go.Scatter(x=scatter_x, y=scatter_y, mode='markers'))
-            fig_scatter.update_layout(
-                xaxis_title=best_columns[i+1],
-                yaxis_title=scrap_column_name,
-                template='plotly_white',
-                hovermode='closest',
-                margin=dict(l=40, r=40, t=40, b=40),
-                width=400,
-                height=300,
-            )
-            st.plotly_chart(fig_scatter, use_container_width=True, align="center")
+    scatter_x = df[best_columns[1]].values.astype(float)
+    scatter_y_bool = [bool(int(val)) for val in scatter_y]
+    scrap_count = 0
+    non_scrap_count = 0
+    for bool_val in scatter_y_bool:
+        if bool_val:
+            scrap_count += 1
+        else:
+            non_scrap_count += 1
+    scatter_x_bool = [non_scrap_count, scrap_count]
+    scatter_y_bool = [False, True]
+    with col4:
+        st.write(f'**Overall data division:**')
+        fig_pie = go.Figure()
+        # fig_pie.add_trace(go.Pie(labels=scatter_y, values=scatter_x))
+        fig_pie.add_trace(go.Pie(labels=['Non-Scrap', 'Scrap'], values=scatter_x_bool, customdata=scatter_y_bool))
+        fig_pie.update_layout(
+            template='plotly_white',
+            margin=dict(l=40, r=40, t=40, b=40),
+            width=400,
+            height=300,
+        )
+        st.plotly_chart(fig_pie, use_container_width=True, align="center")
 
     st.markdown('---')
-
-    col1, col2 = st.columns(2)
 
     # # Line plot
     # with col1:
