@@ -12,9 +12,8 @@ load_dotenv()
 OPEN_API_KEY = os.getenv("OPEN_API_KEY")
 openai.api_key = OPEN_API_KEY
 
-# Function to process the uploaded file and interact with OpenAI's API
+
 def analyze_uploaded_file(text):
-    # Assuming the file is a text file. Adjust accordingly for other types.
     try:
 
         scrap_column_name = 'IsScrap'
@@ -39,10 +38,9 @@ def analyze_uploaded_file(text):
         for i in range(len(all_columns)):
             input_columns += str(all_columns[i]) + ":" + str(correlations[i]) + ","
 
-        # Initialize OpenAI API (ensure you've set your API key in your environment)
-        openai.api_key = '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';
+        # Key Disabled: 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
+        openai.api_key = '';
 
-        # Crafting a prompt for the OpenAI model to analyze the causes of scrap from the content
         prompt_text = f"Take the following list of names of columns and their corresponding coefficients and find the top 3." + input_columns + " Give actionable steps on how to minimize scrap because of these columns in a manufacturing facility in this format: Column 1: 'name of column'\n 1. 'actionable step 1'\n 2. 'actionable step 2'\n 3. 'actionable step 3'\n complete these for the next 3 columns"
         system_prompt = f"You give suggestions for how to reduce scrap in a manufacturing facility given the factors."
 
@@ -55,33 +53,24 @@ def analyze_uploaded_file(text):
         )
         return response.choices[0].message.content
     except Exception as e:
-        return str(e)  # For debugging purposes
+        return str(e)  
 
 
 def csv_to_text(df):
-    # Initialize a list to hold the text representation of each column
     text_columns = []
-
-    # Iterate over the DataFrame columns
     for column in df.columns:
-        # Convert each column to a string, joining cells with " | " as the delimiter
         column_text = " | ".join(map(str, df[column].values))
         text_columns.append(column + ":\n" + column_text + "\n")
-
-    # Join all column texts into a single text string, using double newlines as separators
     full_text = "\n".join(text_columns)
 
     return full_text
 
 
-# Set page configuration to wide layout
 st.set_page_config(layout='wide')
 
-# Set page title
 st.title('Sweep AI')
 st.subheader('Upload a CSV file to analyze its contents')
 
-# File upload widget
 file = st.file_uploader('Upload CSV', type=['csv'])
 
 if file is not None:
@@ -90,19 +79,15 @@ if file is not None:
     parsed_text = csv_to_text(df)
     final_text = analyze_uploaded_file(parsed_text)
 
-    # Display the contents of the CSV file
     st.write('**CSV file contents:**')
     st.write(df)
 
-    st.markdown('---')  # Add separator
+    st.markdown('---')  
 
-    # Display analytics section
     st.subheader('Analytics')
 
-    # Create columns for plots in a 2x2 grid layout
     col1, col2 = st.columns(2)
 
-    # Line plot
     with col1:
         st.write('**Interactive Line Plot**')
         x = np.linspace(0, 10, 100)
@@ -119,8 +104,6 @@ if file is not None:
             height=300,
         )
         st.plotly_chart(fig_line, use_container_width=True, align="center")
-
-    # Bar graph
     with col2:
         st.write('**Bar Graph**')
         categories = ['A', 'B', 'C', 'D']
@@ -139,7 +122,6 @@ if file is not None:
 
         st.plotly_chart(fig_bar, use_container_width=True, align="center")
 
-    # Pie chart
     col3, col4 = st.columns(2)
     with col3:
         st.write('**Pie Chart**')
@@ -153,7 +135,6 @@ if file is not None:
         )
         st.plotly_chart(fig_pie, use_container_width=True, align="center")
 
-    # Scatter plot
     with col4:
         st.write('**Scatter Plot**')
         scatter_x = np.random.rand(50)
@@ -195,5 +176,4 @@ if file is not None:
     st.markdown('---')
 
 
-    # Centered text using HTML and CSS
     st.write('<div style="text-align: center;">Thank you for using <span style="font-size: 22px; font-weight: 800;">SweepAI</span>!</div>', unsafe_allow_html=True)
