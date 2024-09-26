@@ -1,0 +1,3 @@
+My team and I built Sweep, a comprehensive platform for manufacturing companies to visualize their data with interactive dashboards, derive insights on how to reduce scrap in their manufacturing process, and receive recommendations for machine configurations to reduce scrap. The unique aspect of our product is that regardless of the shape, size or form of the dataset, we will be able to parse through and standardize it. 
+
+We used Streamlit to host our dashboard, dora AI to build our landing page, OpenAI API (GPT 3.5 Turbo) to dynamically parse a dataset and generate scrap recommendations, and various statistical methods to produce our insights and graphs. 
