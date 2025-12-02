@@ -8,7 +8,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 
-openai.api_key = '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';
+openai.api_key = '';
 
 # Function to process the uploaded file and interact with OpenAI's API
 def analyze_uploaded_file(text):
